@@ -1,0 +1,95 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!1 &446286699999833343
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 6220100841547403390}
+  - component: {fileID: 975615856531558249}
+  - component: {fileID: 1011446724173214653}
+  m_Layer: 0
+  m_Name: Dungeon
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &6220100841547403390
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 446286699999833343}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &975615856531558249
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 446286699999833343}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 37136b8f256209f459aeb133cfc08594, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::DungeonGenerator
+  size: 600
+  totalRooms: 380
+  tileSize: 10
+  floorThickness: 0.5
+  wallHeight: 7
+  wallThickness: 0.5
+  doorWidth: 3
+  doorHeight: 2.5
+  tileGap: 3
+  bigRoomChance: 0.105
+  ceilingThickness: 0.2
+  textureMetersPerTile: 4
+  floorMaterial: {fileID: 2100000, guid: 36aa5c9f75bcce846b7e786113687796, type: 2}
+  wallMaterial: {fileID: 2100000, guid: 13f3b309106579746a9bbdac67f5208b, type: 2}
+  ceilingMaterial: {fileID: 2100000, guid: 8e7f6dce2c0421c46b2e3569ae61a009, type: 2}
+--- !u!114 &1011446724173214653
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 446286699999833343}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bffa844a9434f854e90852b775960773, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::StructureGenerator
+  dungeon: {fileID: 975615856531558249}
+  SpawnRoom:
+    tiles: []
+    centerGrid: {x: 0, y: 0}
+    centerWorld: {x: 0, y: 0, z: 0}
+    gridValue: 0
+  EndRoom:
+    tiles: []
+    centerGrid: {x: 0, y: 0}
+    centerWorld: {x: 0, y: 0, z: 0}
+    gridValue: 0
+  ShopRoom:
+    tiles: []
+    centerGrid: {x: 0, y: 0}
+    centerWorld: {x: 0, y: 0, z: 0}
+    gridValue: 0
+  autoPlaceLights: 1
+  lightRange: 15
+  lightIntensity: 75
+  lightColor: {r: 1, g: 0.832634, b: 0.5330188, a: 1}
+  lightYFromCeiling: 1
