@@ -447,7 +447,7 @@ PrefabInstance:
     - target: {fileID: 1011446724173214653, guid: bdd86a1b906226447bd8c72f0c58ab80, type: 3}
       propertyPath: shopNPCPrefab
       value: 
-      objectReference: {fileID: -8653719598885068355, guid: d035aa0418cac374e98858cd0b064516, type: 3}
+      objectReference: {fileID: 7961595871426466596, guid: be76d59ddcf4b73459aca85f670b3ed8, type: 3}
     - target: {fileID: 6220100841547403390, guid: bdd86a1b906226447bd8c72f0c58ab80, type: 3}
       propertyPath: m_LocalPosition.x
       value: 0
