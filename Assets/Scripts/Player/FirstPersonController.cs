@@ -17,9 +17,9 @@ public class FirstPersonController : MonoBehaviour
     public float sensitivity = 2f;
 
     [Header("Head Bob")]
-    public float bobFrequency = 10f;
-    public float bobAmplitude = 0.05f;
-    public float bobSideAmplitude = 0.03f;
+    public HeadBobParams idleBob = new HeadBobParams { frequency = 1f, amplitude = 0.02f, sideAmplitude = 0.015f, lerpSpeed = 10f };
+    public HeadBobParams walkBob = new HeadBobParams { frequency = 5f, amplitude = 0.05f, sideAmplitude = 0.03f, lerpSpeed = 0f };
+    public HeadBobParams sprintBob = new HeadBobParams { frequency = 12f, amplitude = 0.07f, sideAmplitude = 0.04f, lerpSpeed = 0f };
 
     [Header("Spawn")]
     public bool autoPositionAtSpawn = true;
@@ -61,7 +61,10 @@ public class FirstPersonController : MonoBehaviour
     {
         HandleLook();
         HandleMove();
-        HandleHeadBob();
+
+        bool moving = controller != null && controller.isGrounded && controller.velocity.sqrMagnitude > 0.1f;
+        bool sprinting = moving && Keyboard.current != null && Keyboard.current.leftShiftKey.isPressed;
+        HandleHeadBob(sprinting ? sprintBob : moving ? walkBob : idleBob);
     }
 
     private void HandleLook()
@@ -112,22 +115,26 @@ public class FirstPersonController : MonoBehaviour
         controller.Move(move * Time.deltaTime);
     }
 
-    private void HandleHeadBob()
+    private void HandleHeadBob(HeadBobParams bob)
     {
         if (cameraTransform == null) return;
 
-        bool moving = controller != null && controller.isGrounded && controller.velocity.sqrMagnitude > 0.1f;
+        float t = Time.time * bob.frequency;
+        float x = Mathf.Sin(t * 0.5f) * bob.sideAmplitude;
+        float y = Mathf.Abs(Mathf.Sin(t)) * bob.amplitude;
+        Vector3 bobPos = new Vector3(cameraBasePos.x + x, cameraBasePos.y + y, cameraBasePos.z);
 
-        if (moving)
-        {
-            float t = Time.time * bobFrequency;
-            float x = Mathf.Sin(t * 0.5f) * bobSideAmplitude;
-            float y = Mathf.Abs(Mathf.Sin(t)) * bobAmplitude;
-            cameraTransform.localPosition = new Vector3(cameraBasePos.x + x, cameraBasePos.y + y, cameraBasePos.z);
-        }
-        else
-        {
-            cameraTransform.localPosition = Vector3.Lerp(cameraTransform.localPosition, cameraBasePos, Time.deltaTime * 10f);
-        }
+        cameraTransform.localPosition = bob.lerpSpeed > 0f
+            ? Vector3.Lerp(cameraTransform.localPosition, bobPos, Time.deltaTime * bob.lerpSpeed)
+            : bobPos;
+    }
+
+    [System.Serializable]
+    public struct HeadBobParams
+    {
+        public float frequency;
+        public float amplitude;
+        public float sideAmplitude;
+        public float lerpSpeed;
     }
 }
