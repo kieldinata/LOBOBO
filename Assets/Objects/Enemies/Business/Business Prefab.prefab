@@ -12,6 +12,18 @@ PrefabInstance:
       propertyPath: m_Name
       value: Business Prefab
       objectReference: {fileID: 0}
+    - target: {fileID: -7786097935031105648, guid: d035aa0418cac374e98858cd0b064516, type: 3}
+      propertyPath: m_CastShadows
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: -7786097935031105648, guid: d035aa0418cac374e98858cd0b064516, type: 3}
+      propertyPath: m_ReceiveShadows
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: -7786097935031105648, guid: d035aa0418cac374e98858cd0b064516, type: 3}
+      propertyPath: 'm_Materials.Array.data[0]'
+      value: 
+      objectReference: {fileID: 2100000, guid: a97c105638bdf8b4a8650670310a4cd3, type: 2}
     - target: {fileID: -7552582706839291426, guid: d035aa0418cac374e98858cd0b064516, type: 3}
       propertyPath: m_LocalPosition.x
       value: 4464.953
@@ -52,6 +64,70 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: -2664578968080877804, guid: d035aa0418cac374e98858cd0b064516, type: 3}
+      propertyPath: m_CastShadows
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: -2664578968080877804, guid: d035aa0418cac374e98858cd0b064516, type: 3}
+      propertyPath: m_ReceiveShadows
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: -2664578968080877804, guid: d035aa0418cac374e98858cd0b064516, type: 3}
+      propertyPath: 'm_Materials.Array.data[0]'
+      value: 
+      objectReference: {fileID: 2100000, guid: a97c105638bdf8b4a8650670310a4cd3, type: 2}
+    - target: {fileID: 683650805199822136, guid: d035aa0418cac374e98858cd0b064516, type: 3}
+      propertyPath: m_CastShadows
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 683650805199822136, guid: d035aa0418cac374e98858cd0b064516, type: 3}
+      propertyPath: m_ReceiveShadows
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 683650805199822136, guid: d035aa0418cac374e98858cd0b064516, type: 3}
+      propertyPath: 'm_Materials.Array.data[0]'
+      value: 
+      objectReference: {fileID: 2100000, guid: a97c105638bdf8b4a8650670310a4cd3, type: 2}
+    - target: {fileID: 1092641441002539719, guid: d035aa0418cac374e98858cd0b064516, type: 3}
+      propertyPath: m_CastShadows
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 1092641441002539719, guid: d035aa0418cac374e98858cd0b064516, type: 3}
+      propertyPath: m_ReceiveShadows
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 1092641441002539719, guid: d035aa0418cac374e98858cd0b064516, type: 3}
+      propertyPath: 'm_Materials.Array.data[0]'
+      value: 
+      objectReference: {fileID: 2100000, guid: a97c105638bdf8b4a8650670310a4cd3, type: 2}
+    - target: {fileID: 5838552553471336640, guid: d035aa0418cac374e98858cd0b064516, type: 3}
+      propertyPath: m_CastShadows
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 5838552553471336640, guid: d035aa0418cac374e98858cd0b064516, type: 3}
+      propertyPath: m_ReceiveShadows
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 5838552553471336640, guid: d035aa0418cac374e98858cd0b064516, type: 3}
+      propertyPath: m_DynamicOccludee
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 5838552553471336640, guid: d035aa0418cac374e98858cd0b064516, type: 3}
+      propertyPath: 'm_Materials.Array.data[0]'
+      value: 
+      objectReference: {fileID: 2100000, guid: a97c105638bdf8b4a8650670310a4cd3, type: 2}
+    - target: {fileID: 6538122573582093264, guid: d035aa0418cac374e98858cd0b064516, type: 3}
+      propertyPath: m_CastShadows
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 6538122573582093264, guid: d035aa0418cac374e98858cd0b064516, type: 3}
+      propertyPath: m_ReceiveShadows
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 6538122573582093264, guid: d035aa0418cac374e98858cd0b064516, type: 3}
+      propertyPath: 'm_Materials.Array.data[0]'
+      value: 
+      objectReference: {fileID: 2100000, guid: a97c105638bdf8b4a8650670310a4cd3, type: 2}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -59,6 +135,12 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: -8653719598885068355, guid: d035aa0418cac374e98858cd0b064516, type: 3}
       insertIndex: -1
       addedObject: {fileID: -1154351391280595685}
+    - targetCorrespondingSourceObject: {fileID: -8653719598885068355, guid: d035aa0418cac374e98858cd0b064516, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: -279378909545365315}
+    - targetCorrespondingSourceObject: {fileID: -8653719598885068355, guid: d035aa0418cac374e98858cd0b064516, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 472203253546145718}
   m_SourcePrefab: {fileID: 4843985084834002234, guid: d035aa0418cac374e98858cd0b064516, type: 3}
 --- !u!1 &7961595871426466596 stripped
 GameObject:
@@ -77,3 +159,38 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f32d6b1fc04590c49af5b63ad60d3967, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::SpriteBehaviour
+--- !u!95 &-279378909545365315
+Animator:
+  serializedVersion: 7
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7961595871426466596}
+  m_Enabled: 1
+  m_Avatar: {fileID: 0}
+  m_Controller: {fileID: 9100000, guid: 0525033c7e6a2664f879a92072f07dac, type: 2}
+  m_CullingMode: 0
+  m_UpdateMode: 0
+  m_ApplyRootMotion: 0
+  m_LinearVelocityBlending: 0
+  m_StabilizeFeet: 0
+  m_AnimatePhysics: 0
+  m_WarningMessage: 
+  m_HasTransformHierarchy: 1
+  m_AllowConstantClipSamplingOptimization: 1
+  m_KeepAnimatorStateOnDisable: 0
+  m_WriteDefaultValuesOnDisable: 0
+--- !u!114 &472203253546145718
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7961595871426466596}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 720b709e83866044aa405bfe9debf8aa, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::SpriteShadow
+  litMaterial: {fileID: 2100000, guid: d84216c925718484cb625ef7d7aad319, type: 2}

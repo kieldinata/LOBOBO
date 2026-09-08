@@ -39,6 +39,13 @@ public class DungeonGenerator : MonoBehaviour
     [Header("Gap / Offset Settings")]
     public float tileGap = 2f;
 
+    [Header("Minimap")]
+    [Tooltip("Offset world copy minimap. Copy dipindah jauh dari dungeon asli supaya tidak terlihat dari main camera.")]
+    public float minimapCopyOffset = 2000f;
+    [Tooltip("Pengali tinggi wall untuk copy minimap. Copy dipotong di ketinggian ini supaya lintel pintu tidak menutup jalur.")]
+    [Range(0.1f, 1f)]
+    public float minimapCopyHeightFactor = 0.5f;
+
     [Header("Chance Settings")]
     [Range(0f, 1f)]
     public float bigRoomChance = 0.3f;
@@ -545,6 +552,8 @@ public class DungeonGenerator : MonoBehaviour
         if (meshes == null || meshes.Count == 0) return;
 
         List<CombineInstance> combineList = new List<CombineInstance>();
+        bool wantsCopy = childName == "Dungeon_Floor" || childName == "Dungeon_Walls";
+        List<CombineInstance> copyInstances = wantsCopy ? new List<CombineInstance>() : null;
 
         for (int i = 0; i < meshes.Count; i++)
         {
@@ -564,6 +573,7 @@ public class DungeonGenerator : MonoBehaviour
                 instance.mesh = meshCopy;
                 instance.transform = transform.worldToLocalMatrix * pbMesh.transform.localToWorldMatrix;
                 combineList.Add(instance);
+                if (wantsCopy) copyInstances.Add(instance);
             }
         }
 
@@ -598,6 +608,97 @@ public class DungeonGenerator : MonoBehaviour
 
         MeshCollider meshCollider = childObj.AddComponent<MeshCollider>();
         meshCollider.sharedMesh = combinedMesh;
+
+        if (childName == "Dungeon_Floor" || childName == "Dungeon_Walls")
+            CreateMinimapCopy(copyInstances, childName);
+    }
+
+    private void CreateMinimapCopy(List<CombineInstance> instances, string sourceName)
+    {
+        if (instances == null || instances.Count == 0) return;
+
+        int layer = LayerMask.NameToLayer("Minimap");
+        if (layer < 0) return;
+
+        string copyName = sourceName == "Dungeon_Floor" ? "Dungeon_Minimap_Floor" : "Dungeon_Minimap_Walls";
+
+        Shader flatShader = Shader.Find("Universal Render Pipeline/Unlit");
+        if (flatShader == null) flatShader = Shader.Find("Universal Render Pipeline/Simple Lit");
+        if (flatShader == null) flatShader = Shader.Find("Standard");
+        if (flatShader == null)
+        {
+            Debug.LogWarning("DungeonGenerator: shader flat tidak ditemukan, copy minimap dilewati.");
+            return;
+        }
+
+        float cutY = Mathf.Clamp(minimapCopyHeightFactor, 0.1f, 1f) * wallHeight;
+        Vector3 copyOffset = new Vector3(minimapCopyOffset, 0f, 0f);
+
+        List<Mesh> tempMeshes = new List<Mesh>();
+        List<CombineInstance> clippedList = new List<CombineInstance>();
+
+        foreach (CombineInstance inst in instances)
+        {
+            Mesh src = inst.mesh;
+            if (src == null) continue;
+
+            Vector3[] verts = src.vertices;
+            if (verts.Length == 0) continue;
+
+            Vector3[] baked = new Vector3[verts.Length];
+            float yMin = float.MaxValue, yMax = float.MinValue;
+            for (int i = 0; i < verts.Length; i++)
+            {
+                baked[i] = inst.transform.MultiplyPoint3x4(verts[i]);
+                if (baked[i].y < yMin) yMin = baked[i].y;
+                if (baked[i].y > yMax) yMax = baked[i].y;
+            }
+
+            if (yMin >= cutY) continue;
+
+            Mesh clipped = new Mesh();
+            tempMeshes.Add(clipped);
+
+            for (int i = 0; i < baked.Length; i++)
+            {
+                if (baked[i].y > cutY) baked[i].y = cutY;
+                verts[i] = baked[i] + copyOffset;
+            }
+
+            clipped.vertices = verts;
+            clipped.uv = src.uv;
+            clipped.normals = src.normals;
+            clipped.triangles = src.triangles;
+
+            clippedList.Add(new CombineInstance { mesh = clipped, transform = Matrix4x4.identity });
+        }
+
+        if (clippedList.Count == 0)
+        {
+            foreach (Mesh m in tempMeshes) Destroy(m);
+            return;
+        }
+
+        Mesh combinedMesh = new Mesh();
+        combinedMesh.indexFormat = IndexFormat.UInt32;
+        combinedMesh.CombineMeshes(clippedList.ToArray(), true, true);
+        combinedMesh.RecalculateBounds();
+        combinedMesh.RecalculateNormals();
+
+        foreach (Mesh m in tempMeshes) Destroy(m);
+
+        GameObject copy = new GameObject(copyName);
+        copy.transform.SetParent(transform, false);
+        copy.transform.localPosition = Vector3.zero;
+        copy.layer = layer;
+
+        MeshFilter filter = copy.AddComponent<MeshFilter>();
+        filter.sharedMesh = combinedMesh;
+
+        MeshRenderer renderer = copy.AddComponent<MeshRenderer>();
+        renderer.sharedMaterial = new Material(flatShader);
+        renderer.shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off;
+        renderer.receiveShadows = false;
     }
 
     public List<RoomData> GetRooms()
