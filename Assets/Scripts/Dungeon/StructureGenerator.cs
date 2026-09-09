@@ -23,10 +23,6 @@ public class StructureGenerator : MonoBehaviour
     [Tooltip("Jarak lampu di bawah ceiling.")]
     public float lightYFromCeiling = 1f;
 
-    [Header("Shop NPC")]
-    [Tooltip("Prefab NPC yang di-spawn di tengah Shop Room.")]
-    public GameObject shopNPCPrefab;
-
     void Start()
     {
         if (dungeon == null)
@@ -52,7 +48,6 @@ public class StructureGenerator : MonoBehaviour
         ShopRoom = FindFarthestRoom(rooms, SpawnRoom, EndRoom);
 
         PlaceLights();
-        PlaceShopNPC();
     }
 
     private void PlaceLights()
@@ -61,21 +56,6 @@ public class StructureGenerator : MonoBehaviour
         PlaceLight(SpawnRoom, "Spawn");
         PlaceLight(EndRoom, "End");
         PlaceLight(ShopRoom, "Shop");
-    }
-
-    private void PlaceShopNPC()
-    {
-        if (shopNPCPrefab == null || ShopRoom == null) return;
-
-        Vector3 spawnPos = new Vector3(
-            ShopRoom.centerWorld.x,
-            dungeon.FloorThickness / 2f,
-            ShopRoom.centerWorld.z
-        );
-
-        GameObject npc = Instantiate(shopNPCPrefab, spawnPos, Quaternion.identity, transform);
-        npc.name = "Shop_NPC";
-        npc.transform.localScale = Vector3.one * 0.3f;
     }
 
     private void PlaceLight(RoomData room, string label)

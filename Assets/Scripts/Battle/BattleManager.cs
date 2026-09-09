@@ -30,7 +30,7 @@ public class BattleManager : MonoBehaviour
     [Header("World References (auto-find)")]
     public DungeonGenerator dungeon;
     public Transform player;
-    public EnemySpawner spawner;
+    public NPCSpawner spawner;
 
     [Header("Battle Scene")]
     [Tooltip("Nama scene battle (daftar di Build Settings).")]
@@ -133,7 +133,7 @@ public class BattleManager : MonoBehaviour
             {
                 GameObject enemyGo = activeEnemy.gameObject;
                 activeEnemy = null;
-                if (spawner != null) spawner.NotifyEnemyDied(enemyGo);
+                if (spawner != null) spawner.NotifyNPCDied(enemyGo);
                 if (enemyGo != null) Destroy(enemyGo);
             }
             Debug.Log("BattleManager: menang. Enemy dihancurkan, respawn cooldown berjalan.");
@@ -249,7 +249,7 @@ public class BattleManager : MonoBehaviour
         }
 
         if (spawner == null)
-            spawner = FindFirstObjectByType<EnemySpawner>();
+            spawner = FindFirstObjectByType<NPCSpawner>();
     }
 
     private Transform FindPlayerTransform()

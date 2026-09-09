@@ -2,7 +2,8 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
-public class EnemySpawner : MonoBehaviour
+[DefaultExecutionOrder(150)]
+public class NPCSpawner : MonoBehaviour
 {
     [System.Serializable]
     public class EnemyTypeConfig
@@ -35,40 +36,47 @@ public class EnemySpawner : MonoBehaviour
     [Tooltip("Tekan K untuk membunuh enemy acak.")]
     public bool debugKillWithKey = true;
 
-    public event System.Action<GameObject> OnEnemySpawned;
-    public event System.Action<GameObject> OnEnemyDied;
+    [Header("Shop NPC")]
+    [Tooltip("Prefab NPC shop yang di-spawn di tengah Shop Room.")]
+    public GameObject shopNPCPrefab;
+
+    public event System.Action<GameObject> OnNPCSpawned;
+    public event System.Action<GameObject> OnNPCDied;
 
     private readonly List<GameObject> aliveEnemies = new List<GameObject>();
     private readonly Queue<float> respawnDue = new Queue<float>();
     private Transform target;
+    private StructureGenerator structure;
     private float pitch = 10f;
 
     void Start()
     {
         if (dungeon == null)
         {
-            Debug.LogWarning("EnemySpawner: dungeon reference belum di-assign.");
-            return;
-        }
-        if (target == null)
-            target = FindTargetTransform();
-        if (target == null)
-        {
-            Debug.LogWarning("EnemySpawner: player tidak ditemukan. Pastikan ada objek bernama 'Player' atau ber-tag 'Player'.");
-            return;
-        }
-        if (dungeon.Grid == null)
-        {
-            Debug.LogWarning("EnemySpawner: grid dungeon belum di-generate.");
-            return;
-        }
-        if (!HasSpawnableType())
-        {
-            Debug.LogWarning("EnemySpawner: belum ada tipe enemy dengan prefab + weight > 0, spawn dilewati.");
+            Debug.LogWarning("NPCSpawner: dungeon reference belum di-assign.");
             return;
         }
 
         pitch = dungeon.TileSize + dungeon.TileGap;
+        SpawnShopNPC();
+
+        if (target == null)
+            target = FindTargetTransform();
+        if (target == null)
+        {
+            Debug.LogWarning("NPCSpawner: player tidak ditemukan. Pastikan ada objek bernama 'Player' atau ber-tag 'Player'.");
+            return;
+        }
+        if (dungeon.Grid == null)
+        {
+            Debug.LogWarning("NPCSpawner: grid dungeon belum di-generate.");
+            return;
+        }
+        if (!HasSpawnableType())
+        {
+            Debug.LogWarning("NPCSpawner: belum ada tipe enemy dengan prefab + weight > 0, spawn dilewati.");
+            return;
+        }
 
         if (bakeNavMesh)
             EnsureNavMeshBaked();
@@ -104,7 +112,7 @@ public class EnemySpawner : MonoBehaviour
             navMeshBake.dungeon = dungeon;
 
         navMeshBake.EnsureBaked();
-        Debug.Log("EnemySpawner: NavMesh dungeon berhasil di-bake.");
+        Debug.Log("NPCSpawner: NavMesh dungeon berhasil di-bake.");
     }
 
     void Update()
@@ -122,15 +130,15 @@ public class EnemySpawner : MonoBehaviour
         }
     }
 
-    public void NotifyEnemyDied(GameObject enemy)
+    public void NotifyNPCDied(GameObject npc)
     {
-        if (enemy == null) return;
+        if (npc == null) return;
 
-        if (aliveEnemies.Remove(enemy))
+        if (aliveEnemies.Remove(npc))
         {
             respawnDue.Enqueue(Time.time + respawnCooldownSeconds);
-            OnEnemyDied?.Invoke(enemy);
-            Debug.Log($"EnemySpawner: 1 enemy mati. Rencana respawn dalam {respawnCooldownSeconds}s. (Alive {aliveEnemies.Count}/{maxEnemies})");
+            OnNPCDied?.Invoke(npc);
+            Debug.Log($"NPCSpawner: 1 enemy mati. Rencana respawn dalam {respawnCooldownSeconds}s. (Alive {aliveEnemies.Count}/{maxEnemies})");
         }
     }
 
@@ -175,14 +183,14 @@ public class EnemySpawner : MonoBehaviour
         Vector2Int? cell = PickSpawnCell();
         if (cell == null)
         {
-            Debug.Log("EnemySpawner: belum ada cell spawn valid berjarak cukup, respawn ditunda.");
+            Debug.Log("NPCSpawner: belum ada cell spawn valid berjarak cukup, respawn ditunda.");
             return false;
         }
 
         EnemyTypeConfig config = PickSpawnType();
         if (config == null)
         {
-            Debug.LogWarning("EnemySpawner: belum ada tipe enemy dengan prefab + weight > 0, spawn ditunda.");
+            Debug.LogWarning("NPCSpawner: belum ada tipe enemy dengan prefab + weight > 0, spawn ditunda.");
             return false;
         }
 
@@ -205,7 +213,7 @@ public class EnemySpawner : MonoBehaviour
         ai.WarpTo(worldPos);
 
         aliveEnemies.Add(enemy);
-        OnEnemySpawned?.Invoke(enemy);
+        OnNPCSpawned?.Invoke(enemy);
         return true;
     }
 
@@ -270,6 +278,35 @@ public class EnemySpawner : MonoBehaviour
 
         GameObject enemy = aliveEnemies[Random.Range(0, aliveEnemies.Count)];
         Destroy(enemy);
-        NotifyEnemyDied(enemy);
+        NotifyNPCDied(enemy);
+    }
+
+    private void SpawnShopNPC()
+    {
+        if (shopNPCPrefab == null) return;
+
+        EnsureStructure();
+        if (structure == null || structure.ShopRoom == null) return;
+
+        Vector3 spawnPos = new Vector3(
+            structure.ShopRoom.centerWorld.x,
+            dungeon.FloorThickness / 2f,
+            structure.ShopRoom.centerWorld.z
+        );
+
+        GameObject npc = Instantiate(shopNPCPrefab, spawnPos, Quaternion.identity, transform);
+        npc.name = "Shop_NPC";
+        npc.transform.localScale = Vector3.one * 0.3f;
+    }
+
+    private void EnsureStructure()
+    {
+        if (structure != null) return;
+
+        if (dungeon != null)
+            structure = dungeon.GetComponent<StructureGenerator>();
+
+        if (structure == null)
+            structure = FindFirstObjectByType<StructureGenerator>();
     }
 }

@@ -49,7 +49,7 @@ public class MinimapController : MonoBehaviour
     private bool isVisible;
     private float currentRotation;
     private float pitch = 10f;
-    private EnemySpawner spawner;
+    private NPCSpawner spawner;
     private readonly List<EntityData> entities = new List<EntityData>();
     private static readonly Dictionary<EntityKind, Material> kindMaterials = new Dictionary<EntityKind, Material>();
 
@@ -74,8 +74,8 @@ public class MinimapController : MonoBehaviour
     {
         if (spawner != null)
         {
-            spawner.OnEnemySpawned -= AddEntity;
-            spawner.OnEnemyDied -= RemoveEntity;
+            spawner.OnNPCSpawned -= AddEntity;
+            spawner.OnNPCDied -= RemoveEntity;
         }
     }
 
@@ -96,12 +96,12 @@ public class MinimapController : MonoBehaviour
         }
 
         if (spawner == null)
-            spawner = FindFirstObjectByType<EnemySpawner>();
+            spawner = FindFirstObjectByType<NPCSpawner>();
 
         if (spawner != null)
         {
-            spawner.OnEnemySpawned += AddEntity;
-            spawner.OnEnemyDied -= RemoveEntity;
+            spawner.OnNPCSpawned += AddEntity;
+            spawner.OnNPCDied -= RemoveEntity;
         }
 
         GameObject[] all = FindObjectsByType<GameObject>(FindObjectsSortMode.None);
@@ -180,6 +180,7 @@ public class MinimapController : MonoBehaviour
         if (go.CompareTag("Player")) return EntityKind.Player;
         if (go.CompareTag("Boss")) return EntityKind.Boss;
         if (go.CompareTag("Enemy")) return EntityKind.Enemy;
+        if (go.CompareTag("Neutral")) return EntityKind.Neutral;
 
         return EntityKind.None;
     }
