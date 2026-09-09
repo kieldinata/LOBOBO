@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.UI;
@@ -11,14 +12,18 @@ public class MinimapController : MonoBehaviour
     public RectTransform marker;
     public Transform target;
 
+    [Header("Entity Markers")]
+    [Tooltip("Layer tempat entitas (Player/Enemy/Boss/Neutral) berada. Marker dibuat untuk semua object di layer ini.")]
+    public string entityLayerName = "Entity";
+
     [Header("Render")]
     [Tooltip("Resolusi RenderTexture minimap (persegi).")]
     public int renderTextureSize = 512;
 
     [Header("Colors")]
-    [Tooltip("Warna lantai (abu gelap).")]
+    [Tooltip("Warna lantai.")]
     public Color floorColor = new Color(0.20f, 0.20f, 0.22f, 1f);
-    [Tooltip("Warna dinding (putih).")]
+    [Tooltip("Warna dinding.")]
     public Color wallColor = new Color(0.95f, 0.95f, 0.96f, 1f);
 
     [Header("View")]
@@ -30,11 +35,23 @@ public class MinimapController : MonoBehaviour
     public bool useToggle = true;
     public bool startVisible = true;
 
+    private enum EntityKind { None, Player, Enemy, Boss, Neutral }
+
+    private class EntityData
+    {
+        public GameObject go;
+        public Transform marker;
+        public EntityKind kind;
+    }
+
     private Camera minimapCamera;
     private RenderTexture mapRT;
     private bool isVisible;
     private float currentRotation;
     private float pitch = 10f;
+    private EnemySpawner spawner;
+    private readonly List<EntityData> entities = new List<EntityData>();
+    private static readonly Dictionary<EntityKind, Material> kindMaterials = new Dictionary<EntityKind, Material>();
 
     void Start()
     {
@@ -49,12 +66,180 @@ public class MinimapController : MonoBehaviour
 
         SetupLiveCamera();
         UpdateView();
+
+        SetupEntityTracking();
+    }
+
+    private void OnDestroy()
+    {
+        if (spawner != null)
+        {
+            spawner.OnEnemySpawned -= AddEntity;
+            spawner.OnEnemyDied -= RemoveEntity;
+        }
     }
 
     void LateUpdate()
     {
         UpdateView();
+        UpdateEntityMarkers();
         HandleToggle();
+    }
+
+    private void SetupEntityTracking()
+    {
+        int entityLayer = LayerMask.NameToLayer(entityLayerName);
+        if (entityLayer < 0)
+        {
+            Debug.LogWarning($"MinimapController: layer '{entityLayerName}' tidak ada. Marker entitas dilewati.");
+            return;
+        }
+
+        if (spawner == null)
+            spawner = FindFirstObjectByType<EnemySpawner>();
+
+        if (spawner != null)
+        {
+            spawner.OnEnemySpawned += AddEntity;
+            spawner.OnEnemyDied -= RemoveEntity;
+        }
+
+        GameObject[] all = FindObjectsByType<GameObject>(FindObjectsSortMode.None);
+        for (int i = 0; i < all.Length; i++)
+        {
+            if (all[i].layer == entityLayer)
+                AddEntity(all[i]);
+        }
+    }
+
+    private void AddEntity(GameObject go)
+    {
+        if (go == null) return;
+        if (HasEntity(go)) return;
+
+        EntityKind kind = KindOf(go);
+        if (kind == EntityKind.None) return;
+
+        Transform markerT = CreateMarker(kind, go.name);
+
+        EntityData data = new EntityData
+        {
+            go = go,
+            marker = markerT,
+            kind = kind
+        };
+        entities.Add(data);
+    }
+
+    private void RemoveEntity(GameObject go)
+    {
+        for (int i = entities.Count - 1; i >= 0; i--)
+        {
+            if (entities[i].go != go) continue;
+
+            if (entities[i].marker != null)
+                Destroy(entities[i].marker.gameObject);
+
+            entities.RemoveAt(i);
+        }
+    }
+
+    private bool HasEntity(GameObject go)
+    {
+        for (int i = 0; i < entities.Count; i++)
+        {
+            if (entities[i].go == go) return true;
+        }
+        return false;
+    }
+
+    private void UpdateEntityMarkers()
+    {
+        if (dungeon == null || minimapCamera == null) return;
+
+        for (int i = entities.Count - 1; i >= 0; i--)
+        {
+            EntityData data = entities[i];
+
+            if (data.go == null || data.marker == null)
+            {
+                if (data.marker != null) Destroy(data.marker.gameObject);
+                entities.RemoveAt(i);
+                continue;
+            }
+
+            Vector3 local = dungeon.transform.InverseTransformPoint(data.go.transform.position);
+            data.marker.position = dungeon.transform.TransformPoint(
+                new Vector3(dungeon.minimapCopyOffset + local.x, 1f, local.z)
+            );
+        }
+    }
+
+    private EntityKind KindOf(GameObject go)
+    {
+        if (go.CompareTag("Player")) return EntityKind.Player;
+        if (go.CompareTag("Boss")) return EntityKind.Boss;
+        if (go.CompareTag("Enemy")) return EntityKind.Enemy;
+
+        return EntityKind.None;
+    }
+
+    private Transform CreateMarker(EntityKind kind, string entityName)
+    {
+        int minimapLayer = LayerMask.NameToLayer("Minimap");
+
+        GameObject go = GameObject.CreatePrimitive(PrimitiveType.Capsule);
+        go.name = "MinimapMarker_" + entityName;
+        if (minimapLayer >= 0) go.layer = minimapLayer;
+        go.transform.SetParent(transform, false);
+
+        Collider col = go.GetComponent<Collider>();
+        if (col != null)
+            col.enabled = false;
+
+        Renderer r = go.GetComponent<Renderer>();
+        r.sharedMaterial = GetKindMaterial(kind);
+        r.shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off;
+        r.receiveShadows = false;
+
+        go.transform.localScale = MarkerScale(kind);
+        return go.transform;
+    }
+
+    private static Vector3 MarkerScale(EntityKind kind)
+    {
+        if (kind == EntityKind.Boss) return new Vector3(3f, 5f, 3f);
+        return new Vector3(2f, 3.5f, 2f);
+    }
+
+    private static Material GetKindMaterial(EntityKind kind)
+    {
+        if (kindMaterials.TryGetValue(kind, out Material existing) && existing != null)
+            return existing;
+
+        Shader shader = Shader.Find("Universal Render Pipeline/Unlit");
+        if (shader == null) shader = Shader.Find("Universal Render Pipeline/Simple Lit");
+        if (shader == null) shader = Shader.Find("Standard");
+        if (shader == null) return null;
+
+        Material mat = new Material(shader)
+        {
+            color = MarkerColor(kind)
+        };
+
+        kindMaterials[kind] = mat;
+        return mat;
+    }
+
+    private static Color MarkerColor(EntityKind kind)
+    {
+        switch (kind)
+        {
+            case EntityKind.Player: return Color.cyan;
+            case EntityKind.Boss: return Color.magenta;
+            case EntityKind.Enemy: return Color.red;
+            default: return Color.green;
+        }
     }
 
     private void SetupLiveCamera()
